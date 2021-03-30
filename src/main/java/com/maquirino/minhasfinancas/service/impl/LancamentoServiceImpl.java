@@ -3,13 +3,13 @@ package com.maquirino.minhasfinancas.service.impl;
 import com.maquirino.minhasfinancas.exception.RegraNegocioException;
 import com.maquirino.minhasfinancas.model.entity.Lancamento;
 import com.maquirino.minhasfinancas.model.enums.StatusLancamento;
+import com.maquirino.minhasfinancas.model.enums.TipoLancamento;
 import com.maquirino.minhasfinancas.model.repository.LancamentoRepository;
 import com.maquirino.minhasfinancas.service.LancamentoService;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import net.bytebuddy.implementation.bytecode.Throw;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -58,19 +58,44 @@ public class LancamentoServiceImpl implements LancamentoService {
     }
 
     @Override
-    public void atualizarStatus(Lancamento lancamento, StatusLancamento statusLancamento) {
+    @Transactional(readOnly = true)
+    public BigDecimal obterSaldo(Long id) {
+        BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
+        BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+
+        if (receitas == null) {
+            receitas = BigDecimal.ZERO;
+        }
+        if (despesas == null) {
+            despesas = BigDecimal.ZERO;
+        }
+
+        return receitas.subtract(despesas);
+    }
+
+    @Override
+    public Lancamento atualizarStatus(Lancamento lancamento, StatusLancamento statusLancamento) {
 
         lancamento.setStatus(statusLancamento);
-        atualizar(lancamento);
+        return atualizar(lancamento);
+    }
+
+    @Override
+    public Lancamento obterPorId(Long id) {
+        Optional<Lancamento> optionalLancamento = repository.findById(id);
+        if (optionalLancamento.isEmpty()) {
+            throw new RegraNegocioException("Lancamento não encontrado");
+        }
+        return optionalLancamento.get();
     }
 
     @Override
     public void validar(Lancamento lancamento) {
 
-        boolean erroDescricao = (lancamento.getDescricao().isBlank() || lancamento.getDescricao().isEmpty() || lancamento.getDescricao() == null) ? true : false;
-        boolean erroMes = (lancamento.getMes() < 1 || lancamento.getMes() > 12 || lancamento.getMes() == null) ? true : false;
-        boolean erroAno = (lancamento.getAno().toString().length() != 4 || lancamento.getAno() == null) ? true : false;
-        boolean erroValor = (lancamento.getValor().compareTo(BigDecimal.ZERO) < 1 || lancamento.getValor() == null) ? true : false;
+        boolean erroDescricao = (lancamento.getDescricao() == null || lancamento.getDescricao().isBlank() || lancamento.getDescricao().isEmpty()) ? true : false;
+        boolean erroMes = (lancamento.getMes() == null || lancamento.getMes() < 1 || lancamento.getMes() > 12 ) ? true : false;
+        boolean erroAno = (lancamento.getAno() == null || lancamento.getAno().toString().length() != 4 || lancamento.getAno() == null) ? true : false;
+        boolean erroValor = (lancamento.getValor() == null ||lancamento.getValor().compareTo(BigDecimal.ZERO) < 1) ? true : false;
         boolean erroTipo = (lancamento.getTipo() == null) ? true : false;
 
         if (erroDescricao) {

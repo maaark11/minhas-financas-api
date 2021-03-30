@@ -25,10 +25,10 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 class UsuarioRepositoryTest {
 
     @Autowired
-    UsuarioRepository repository;
+    private UsuarioRepository repository;
 
     @Autowired
-    TestEntityManager entityManager;
+    private TestEntityManager entityManager;
 
     @Test
     void deveExistirUmEmail() {

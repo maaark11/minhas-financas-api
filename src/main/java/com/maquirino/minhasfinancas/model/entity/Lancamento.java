@@ -3,9 +3,7 @@ package com.maquirino.minhasfinancas.model.entity;
 import com.maquirino.minhasfinancas.model.enums.StatusLancamento;
 import com.maquirino.minhasfinancas.model.enums.TipoLancamento;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -20,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters.LocalDateConverter;
 
 @Data
 @Entity
@@ -59,7 +56,4 @@ public class Lancamento {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-    @Column(name = "data_cadastro")
-    @Convert(converter = LocalDateConverter.class)
-    private LocalDate dataCadastro;
 }

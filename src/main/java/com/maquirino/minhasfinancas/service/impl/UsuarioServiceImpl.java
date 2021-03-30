@@ -16,22 +16,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private UsuarioRepository repository;
 
-
-
     @Override
     public Usuario autenticar(String email, String senha) throws ErroAutenticacao {
         Optional<Usuario> optionalUsuario = repository.findByEmail(email);
 
-        if (optionalUsuario.isEmpty()) {
-            throw new ErroAutenticacao("Usuário não encontrado");
-        }
-
-        if (!optionalUsuario.get().getSenha().equals(senha)) {
-            throw new ErroAutenticacao("Senha incorreta");
-        }
-
-        return optionalUsuario.get();
+        return validaUsuarioESenha(senha, optionalUsuario);
     }
+
 
     @Override
     @Transactional
@@ -46,5 +37,26 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (existe) {
             throw new RegraNegocioException("Já Existe um usuário cadastrado com o email informado");
         }
+    }
+
+    @Override
+    public Usuario obterPorId(Long id) {
+        Optional<Usuario> optionalUsuario = repository.findById(id);
+        return validaUsuario(optionalUsuario);
+    }
+
+    private Usuario validaUsuario(Optional<Usuario> optionalUsuario) {
+        if (optionalUsuario.isEmpty()) {
+            throw new ErroAutenticacao("Usuário não encontrado");
+        }
+        return optionalUsuario.get();
+    }
+
+    private Usuario validaUsuarioESenha(String senha, Optional<Usuario> optionalUsuario) {
+        Usuario usuario = validaUsuario(optionalUsuario);
+        if (!usuario.getSenha().equals(senha)) {
+            throw new ErroAutenticacao("Senha incorreta");
+        }
+        return usuario;
     }
 }

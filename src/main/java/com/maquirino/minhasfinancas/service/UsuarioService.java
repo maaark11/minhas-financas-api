@@ -11,4 +11,6 @@ public interface UsuarioService {
     Usuario salvarUsuario(Usuario usuario);
 
     void validarEmail(String email) throws RegraNegocioException;
+
+    Usuario obterPorId(Long id);
 }

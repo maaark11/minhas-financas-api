@@ -1,5 +1,6 @@
 package com.maquirino.minhasfinancas.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,6 +33,7 @@ public class Usuario {
     @Column(name = "email")
     private String email;
 
+    @JsonIgnore
     @Column(name = "senha")
     private String senha;
 }
