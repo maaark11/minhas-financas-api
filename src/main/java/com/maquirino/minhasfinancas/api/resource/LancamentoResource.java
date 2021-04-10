@@ -36,7 +36,7 @@ public class LancamentoResource {
     @PostMapping("/salvar")
     public ResponseEntity salvar(@RequestBody LancamentoDTO lancamentoDTO) {
         try {
-            Lancamento lancamento = converter(lancamentoDTO);
+            var lancamento = converter(lancamentoDTO);
             lancamento = lancamentoService.salvar(lancamento);
             return ResponseEntity.status(HttpStatus.CREATED).body(lancamento);
         } catch (RegraNegocioException e) {
